@@ -2,7 +2,17 @@
 
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, Enum, Float, Integer, String, func
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    Enum,
+    Float,
+    Index,
+    Integer,
+    String,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from synonym_quest.database import Base
@@ -10,6 +20,17 @@ from synonym_quest.database import Base
 
 class User(Base):
     __tablename__ = "users"
+
+    __table_args__ = (
+        # Уникальность teacher_code — только среди учителей.
+        # У учеников это поле хранит код их учителя и может повторяться.
+        Index(
+            "ix_users_teacher_code_teacher",
+            "teacher_code",
+            unique=True,
+            postgresql_where=text("role = 'teacher'"),
+        ),
+    )
 
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     role: Mapped[str] = mapped_column(
@@ -19,9 +40,7 @@ class User(Base):
     )
     username: Mapped[str | None] = mapped_column(String(64), nullable=True)
     display_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    teacher_code: Mapped[str | None] = mapped_column(
-        String(16), nullable=True, unique=True, index=True
-    )
+    teacher_code: Mapped[str | None] = mapped_column(String(16), nullable=True)
     current_rank: Mapped[str] = mapped_column(
         String(32), nullable=False, default="novice"
     )
