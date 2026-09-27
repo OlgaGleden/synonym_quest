@@ -1,0 +1,26 @@
+# Нормализация переводов строк
+* text=auto
+
+# Python и конфиги — всегда LF
+*.py text eol=lf
+*.pyi text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.mako text eol=lf
+.env.example text eol=lf
+
+# Windows-скрипты — CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Бинарные
+*.png binary
+*.jpg binary
+*.ico binary
