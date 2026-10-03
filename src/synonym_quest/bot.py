@@ -4,10 +4,9 @@ import asyncio
 import logging
 
 from maxapi import Bot, Dispatcher
-from maxapi.filters.command import CommandStart
-from maxapi.types import BotStarted, MessageCreated
 
 from synonym_quest.config import settings
+from synonym_quest.handlers import ALL_ROUTERS
 
 logging.basicConfig(level=settings.log_level)
 logger = logging.getLogger(__name__)
@@ -15,20 +14,7 @@ logger = logging.getLogger(__name__)
 bot = Bot(token=settings.bot_token)
 dp = Dispatcher()
 
-
-@dp.bot_started()
-async def on_bot_started(event: BotStarted) -> None:
-    await event.bot.send_message(
-        chat_id=event.chat_id,
-        text="Привет! Я бот для изучения английских синонимов. Отправь /start, чтобы начать.",
-    )
-
-
-@dp.message_created(CommandStart())
-async def on_start(event: MessageCreated) -> None:
-    await event.message.answer(
-        "Synonym Quest готов к работе. Скоро здесь появятся задания!"
-    )
+dp.include_routers(*ALL_ROUTERS)
 
 
 async def main() -> None:
