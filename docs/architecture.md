@@ -1,5 +1,3 @@
-```powershell
-New-Item -ItemType Directory -Path docs -Force | Out-Null
 # Архитектура Synonym Quest
 
 ## Слои
