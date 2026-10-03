@@ -1,4 +1,4 @@
-"""Модель задания (одного из 4 уровней)."""
+"""Модель задания (одного из 4 уровней + Boss)."""
 
 from datetime import datetime
 
@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Enum,
     Integer,
     String,
     Text,
@@ -16,6 +17,22 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from synonym_quest.database import Base
+
+
+# Механики (они же «уровни»):
+#   word_tyr          — Словесный тир
+#   context_detective — Детектив контекста
+#   synonym_puzzle    — Синонимический пазл
+#   synonym_battle    — Битва синонимов
+#   boss              — Boss-уровень
+TASK_TYPES: tuple[str, ...] = (
+    "word_tyr",
+    "context_detective",
+    "synonym_puzzle",
+    "synonym_battle",
+    "boss",
+)
+DEFAULT_TASK_TYPE = "word_tyr"
 
 
 class Task(Base):
@@ -32,6 +49,13 @@ class Task(Base):
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     difficulty_level: Mapped[int] = mapped_column(Integer, nullable=False)
+    task_type: Mapped[str] = mapped_column(
+        Enum(*TASK_TYPES, name="task_type"),
+        nullable=False,
+        default=DEFAULT_TASK_TYPE,
+        server_default=DEFAULT_TASK_TYPE,
+        index=True,
+    )
     topic: Mapped[str | None] = mapped_column(String(128), nullable=True)
     full_text: Mapped[str] = mapped_column(Text, nullable=False)
     correct_text: Mapped[str] = mapped_column(Text, nullable=False)

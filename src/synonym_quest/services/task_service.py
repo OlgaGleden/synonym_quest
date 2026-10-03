@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from synonym_quest.models.task import Task
+from synonym_quest.models.task import DEFAULT_TASK_TYPE, TASK_TYPES, Task
 from synonym_quest.models.task_step import TaskStep
 
 
@@ -34,6 +34,13 @@ class TaskService:
             raise ValueError(
                 f"difficulty_level must be in [{MIN_DIFFICULTY}, {MAX_DIFFICULTY}], "
                 f"got {difficulty_level}"
+            )
+
+    @staticmethod
+    def _check_task_type(task_type: str) -> None:
+        if task_type not in TASK_TYPES:
+            raise ValueError(
+                f"task_type must be one of {TASK_TYPES}, got {task_type!r}"
             )
 
     # ---- чтение -------------------------------------------------------------
@@ -125,10 +132,12 @@ class TaskService:
         correct_text: str,
         word_bank: Sequence[str] | None = None,
         topic: str | None = None,
+        task_type: str = DEFAULT_TASK_TYPE,
         is_boss_level: bool = False,
         created_by: int | None = None,
     ) -> Task:
         TaskService._check_difficulty(difficulty_level)
+        TaskService._check_task_type(task_type)
         if not title:
             raise ValueError("title must be non-empty")
         if not full_text:
@@ -143,6 +152,7 @@ class TaskService:
             correct_text=correct_text,
             word_bank=list(word_bank) if word_bank else [],
             topic=topic,
+            task_type=task_type,
             is_boss_level=is_boss_level,
             created_by=created_by,
         )
