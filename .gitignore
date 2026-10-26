@@ -29,3 +29,7 @@ htmlcov/
 
 # Docker
 *.log
+
+# Local dev utilities
+check_bot.py
+*.bak
