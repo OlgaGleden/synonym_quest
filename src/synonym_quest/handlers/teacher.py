@@ -58,6 +58,17 @@ def _fmt_pct(value: float) -> str:
     return f"{value:g}%"
 
 
+def _plural_attempts(n: int) -> str:
+    """1 попытка, 2 попытки, 5 попыток."""
+    mod10 = n % 10
+    mod100 = n % 100
+    if mod10 == 1 and mod100 != 11:
+        return "попытка"
+    if 2 <= mod10 <= 4 and not (12 <= mod100 <= 14):
+        return "попытки"
+    return "попыток"
+
+
 async def _ensure_teacher(event: MessageCreated, session) -> object | None:
     """Вернуть User-учителя или ответить отказом и вернуть None."""
     sender = event.message.sender
@@ -76,6 +87,9 @@ async def _ensure_teacher(event: MessageCreated, session) -> object | None:
     return user
 
 
+# ---- форматтеры отчётов ----------------------------------------------------
+
+
 def _format_students(students: list[dict]) -> str:
     if not students:
         return (
@@ -92,7 +106,8 @@ def _format_students(students: list[dict]) -> str:
         else:
             lines.append(
                 f"   Ранг: {s['rank']} · заданий: {s['completed_count']} · "
-                f"верно: {s['correct_count']} ({_fmt_pct(s['accuracy'])})"
+                f"полностью: {s['correct_count']} "
+                f"({_fmt_pct(s['accuracy'])})"
             )
         lines.append("")
     return "\n".join(lines).rstrip()
@@ -112,7 +127,7 @@ def _format_class_stats(data: dict) -> str:
 
     lines.append(
         f"📝 Заданий: {data['total_completed']} · "
-        f"верно: {data['total_correct']} "
+        f"полностью решено: {data['total_correct']} "
         f"({_fmt_pct(data['total_accuracy'])})"
     )
     lines.append("")
@@ -123,9 +138,10 @@ def _format_class_stats(data: dict) -> str:
         stats = data["by_category"].get(tt, {})
         if stats.get("attempts", 0) > 0:
             has_data = True
+            n = stats["attempts"]
             lines.append(
-                f"• {label}: {stats['attempts']} попыток, "
-                f"{_fmt_pct(stats['accuracy'])} верных"
+                f"• {label}: {n} {_plural_attempts(n)}, "
+                f"полностью: {_fmt_pct(stats['accuracy'])}"
             )
     if not has_data:
         lines.append("• пока нет данных по механикам")
@@ -141,10 +157,11 @@ def _format_weak_tasks(task_type: str, items: list[dict]) -> str:
         )
     lines = [f"❌ Слабые задания: {label}", ""]
     for i, it in enumerate(items, 1):
+        n = it["attempts"]
         lines.append(f"{i}. {it['title']}")
         lines.append(
-            f"   Попыток: {it['attempts']} · "
-            f"верно: {it['correct']} ({_fmt_pct(it['accuracy'])})"
+            f"   {n} {_plural_attempts(n)} · "
+            f"полностью: {_fmt_pct(it['accuracy'])}"
         )
     return "\n".join(lines)
 
@@ -164,6 +181,7 @@ async def on_teacher(event: MessageCreated) -> None:
             display_name=_display_name(sender),
         )
 
+        # Уже учитель — открыть кабинет, код не перегенерируем
         if user.role == ROLE_TEACHER:
             await session.commit()
             code = user.teacher_code
@@ -175,6 +193,7 @@ async def on_teacher(event: MessageCreated) -> None:
             )
             return
 
+        # Ученик — промоушен
         if user.role == ROLE_STUDENT:
             await UserService.promote_to_teacher(session, user)
             await session.commit()
@@ -191,6 +210,7 @@ async def on_teacher(event: MessageCreated) -> None:
             )
             return
 
+        # Неизвестная роль (на будущее)
         await session.commit()
         await event.message.answer(
             f"Неизвестная роль: {user.role}. Обратись к администратору."
