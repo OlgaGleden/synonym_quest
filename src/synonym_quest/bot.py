@@ -6,6 +6,7 @@ import logging
 from maxapi import Bot, Dispatcher
 
 from synonym_quest.config import settings
+from synonym_quest.database import dispose_engine
 from synonym_quest.handlers import ALL_ROUTERS
 
 logging.basicConfig(level=settings.log_level)
@@ -19,8 +20,15 @@ dp.include_routers(*ALL_ROUTERS)
 
 async def main() -> None:
     logger.info("Запуск Synonym Quest (polling)")
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+        await dispose_engine()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Бот остановлен, соединения закрыты")
