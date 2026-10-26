@@ -101,12 +101,23 @@ class TaskService:
         difficulty_level: int,
         *,
         topic: str | None = None,
+        task_type: str | None = None,
     ) -> Task | None:
-        """Случайное задание заданной сложности. None, если ничего нет."""
+        """Случайное задание заданной сложности. None, если ничего нет.
+
+        task_type — если задан, фильтрует по механике (word_tyr,
+        context_detective, synonym_puzzle, synonym_battle, boss).
+        None (по умолчанию) — любая механика.
+        """
         TaskService._check_difficulty(difficulty_level)
+        if task_type is not None:
+            TaskService._check_task_type(task_type)
+
         stmt = select(Task).where(Task.difficulty_level == difficulty_level)
         if topic is not None:
             stmt = stmt.where(Task.topic == topic)
+        if task_type is not None:
+            stmt = stmt.where(Task.task_type == task_type)
         stmt = stmt.order_by(func.random()).limit(1)
         return (await session.execute(stmt)).scalar_one_or_none()
 
