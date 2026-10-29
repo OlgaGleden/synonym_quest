@@ -33,3 +33,9 @@ htmlcov/
 # Local dev utilities
 check_bot.py
 *.bak
+
+# Local dev utilities
+add_new_tasks.py
+check_seed.py
+check_tasks.py
+check_bot.py
