@@ -13,10 +13,14 @@
 from maxapi import Router
 from maxapi.filters.command import Command
 from maxapi.types import MessageCreated
+from sqlalchemy import func, select
 
 from synonym_quest.database import AsyncSessionLocal
+from synonym_quest.models.session import Session
+from synonym_quest.models.task import Task
 from synonym_quest.services import SessionService, TaskService, UserService
 from synonym_quest.services.session_service import (
+    STATUS_COMPLETED,
     XP_COMPLETION_BONUS,
     XP_PER_CORRECT_STEP,
 )
@@ -45,8 +49,40 @@ def _display_name(sender) -> str | None:
     return name or sender.username
 
 
-async def _pick_task(session, task_type: str):
-    """Первое найденное задание заданного типа (от простой сложности к сложной)."""
+async def _pick_task(session, user_id: int, task_type: str):
+    """Задание заданного типа, которого ученик ещё не проходил.
+
+    Сначала ищем среди заданий, которых нет в completed-сессиях ученика
+    (перебираем difficulty 1→5, берём случайное на первой непустой
+    сложности). Если все задания этого типа уже пройдены — fallback на
+    прежнее поведение (любое задание заданного типа).
+    """
+    done_ids = set(
+        (
+            await session.execute(
+                select(Session.task_id).where(
+                    Session.user_id == user_id,
+                    Session.status == STATUS_COMPLETED,
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    for difficulty in DIFFICULTY_ORDER:
+        stmt = select(Task).where(
+            Task.difficulty_level == difficulty,
+            Task.task_type == task_type,
+        )
+        if done_ids:
+            stmt = stmt.where(Task.task_id.notin_(done_ids))
+        stmt = stmt.order_by(func.random()).limit(1)
+        task = (await session.execute(stmt)).scalar_one_or_none()
+        if task is not None:
+            return task
+
+    # Все задания этого типа уже пройдены — возвращаем любое (fallback).
     for difficulty in DIFFICULTY_ORDER:
         task = await TaskService.random_task(
             session, difficulty, task_type=task_type
@@ -155,7 +191,7 @@ async def _start_or_resume(event: MessageCreated, task_type: str) -> None:
             )
             return
 
-        task = await _pick_task(session, task_type)
+        task = await _pick_task(session, user.user_id, task_type)
         if task is None:
             await session.commit()
             await event.message.answer(
