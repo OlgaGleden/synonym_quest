@@ -1,4 +1,4 @@
-"""Seed-данные: 15 заданий Synonym Quest, по 3 на каждую из 5 категорий.
+"""Seed-данные: 20 заданий Synonym Quest, по 4 на каждую из 5 категорий.
 
 Используется `scripts/seed_tasks.py` для наполнения БД и тестами
 `tests/test_seed_data.py` для валидации структуры. Сообщения и словари
@@ -444,6 +444,179 @@ SEED_TASKS: list[dict] = [
         ],
     },
 ]
+
+
+# ---- Дополнительные задания: 4-й набор по механикам ------------------------
+# Добавлены для расширения ротации (было 3 на механику, стало 4).
+
+APPEND_TASKS: list[dict] = [
+    # ---- word_tyr: 4-е задание ----------------------------------------
+    {
+        "title": "Сложный тест",
+        "task_type": "word_tyr",
+        "difficulty_level": 3,
+        "topic": "education",
+        "is_boss_level": False,
+        "full_text": (
+            "The final puzzle was ___; nobody could solve it. "
+            "The task was ___ and the instructions were ___."
+        ),
+        "correct_text": (
+            "The final puzzle was difficult; nobody could solve it. "
+            "The task was hard and the instructions were challenging."
+        ),
+        "word_bank": [
+            "difficult", "hard", "challenging",
+            "easy", "simple", "clear",
+        ],
+        "steps": [
+            {"step_number": 1, "correct_word": "difficult",
+             "context_hint": "Задача, которую трудно решить"},
+            {"step_number": 2, "correct_word": "hard",
+             "context_hint": "Синоним difficult"},
+            {"step_number": 3, "correct_word": "challenging",
+             "context_hint": "Инструкции, требующие усилий"},
+        ],
+    },
+
+    # ---- context_detective: 4-е задание --------------------------------
+    {
+        "title": "В классе",
+        "task_type": "context_detective",
+        "difficulty_level": 3,
+        "topic": "education",
+        "is_boss_level": False,
+        "full_text": (
+            "We need a ___ classroom for thirty students. "
+            "Mia is very ___; she solved the puzzle in a minute. "
+            "Please stay ___ while the baby is sleeping."
+        ),
+        "correct_text": (
+            "We need a large classroom for thirty students. "
+            "Mia is very clever; she solved the puzzle in a minute. "
+            "Please stay silent while the baby is sleeping."
+        ),
+        "word_bank": [
+            "large", "clever", "silent",
+            "pretty", "hard", "noisy",
+        ],
+        "steps": [
+            {"step_number": 1, "correct_word": "large",
+             "context_hint": "Класс для тридцати учеников должен быть большим"},
+            {"step_number": 2, "correct_word": "clever",
+             "context_hint": "Миа быстро решила головоломку — она умная"},
+            {"step_number": 3, "correct_word": "silent",
+             "context_hint": "Не шуметь, пока спит ребёнок"},
+        ],
+    },
+
+    # ---- synonym_puzzle: 4-е задание -----------------------------------
+    {
+        "title": "Холодный день",
+        "task_type": "synonym_puzzle",
+        "difficulty_level": 4,
+        "topic": "weather",
+        "is_boss_level": False,
+        "full_text": (
+            "Yesterday morning was quite ___, so I put on a warm coat. "
+            "The wind was ___ and shook the trees. The lake was almost ___, "
+            "so we didn't go swimming. At home, we sat under a ___ blanket "
+            "and drank tea."
+        ),
+        "correct_text": (
+            "Yesterday morning was quite chilly, so I put on a warm coat. "
+            "The wind was fierce and shook the trees. The lake was almost "
+            "freezing, so we didn't go swimming. At home, we sat under a "
+            "cozy blanket and drank tea."
+        ),
+        "word_bank": [
+            "chilly", "fierce", "freezing", "cozy",
+            "warm", "gentle", "boiling", "uncomfortable",
+        ],
+        "steps": [
+            {"step_number": 1, "correct_word": "chilly",
+             "context_hint": "Прохладное утро, но не мороз"},
+            {"step_number": 2, "correct_word": "fierce",
+             "context_hint": "Сильный, резкий ветер"},
+            {"step_number": 3, "correct_word": "freezing",
+             "context_hint": "Озеро почти замёрзло"},
+            {"step_number": 4, "correct_word": "cozy",
+             "context_hint": "Уютный плед дома"},
+        ],
+    },
+
+    # ---- synonym_battle: 4-е задание -----------------------------------
+    {
+        "title": "Мой день",
+        "task_type": "synonym_battle",
+        "difficulty_level": 4,
+        "topic": "daily_routine",
+        "is_boss_level": False,
+        "full_text": (
+            "When I ___ out of my window, it was getting dark. "
+            "I ___ the food and the atmosphere. Suddenly I saw Victor "
+            "and Peter ___ their way to my table."
+        ),
+        "correct_text": (
+            "When I looked out of my window, it was getting dark. "
+            "I enjoyed the food and the atmosphere. Suddenly I saw Victor "
+            "and Peter making their way to my table."
+        ),
+        "word_bank": [
+            "looked", "enjoyed", "making",
+            "watched", "preferred", "doing",
+        ],
+        "steps": [
+            {"step_number": 1, "correct_word": "looked",
+             "context_hint": "Посмотрел в окно — look out of the window"},
+            {"step_number": 2, "correct_word": "enjoyed",
+             "context_hint": "Получал удовольствие от еды и атмосферы"},
+            {"step_number": 3, "correct_word": "making",
+             "context_hint": "Прокладывали путь к столу — make one's way"},
+        ],
+    },
+
+    # ---- boss: 4-е задание ---------------------------------------------
+    {
+        "title": "Известная спортсменка",
+        "task_type": "boss",
+        "difficulty_level": 5,
+        "topic": "sports",
+        "is_boss_level": True,
+        "full_text": (
+            "How did Victoria Green ___ to get all of those cups? "
+            "Her serve is ___ one of the best in women's tennis. "
+            "At Wimbledon she ___ the tournament's record. "
+            "___ she was two points away from losing, she did not give up. "
+            "Her charity ___ educational opportunities for underprivileged youth."
+        ),
+        "correct_text": (
+            "How did Victoria Green manage to get all of those cups? "
+            "Her serve is considered one of the best in women's tennis. "
+            "At Wimbledon she broke the tournament's record. "
+            "Although she was two points away from losing, she did not give up. "
+            "Her charity provides educational opportunities for underprivileged youth."
+        ),
+        "word_bank": [
+            "manage", "considered", "broke", "Although", "provides",
+            "succeed", "convinced", "pushed", "However", "predicts",
+        ],
+        "steps": [
+            {"step_number": 1, "correct_word": "manage",
+             "context_hint": "Суметь добиться — manage to do smth"},
+            {"step_number": 2, "correct_word": "considered",
+             "context_hint": "Её подачу считают одной из лучших"},
+            {"step_number": 3, "correct_word": "broke",
+             "context_hint": "Побила рекорд турнира — break a record"},
+            {"step_number": 4, "correct_word": "Although",
+             "context_hint": "Хотя она была в двух очках от поражения"},
+            {"step_number": 5, "correct_word": "provides",
+             "context_hint": "Благотворительная организация обеспечивает возможности"},
+        ],
+    },
+]
+
+SEED_TASKS.extend(APPEND_TASKS)
 
 
 __all__ = ["SEED_TASKS"]
