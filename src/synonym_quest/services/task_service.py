@@ -179,6 +179,7 @@ class TaskService:
         step_number: int,
         correct_word: str,
         context_hint: str | None = None,
+        explanation: str | None = None,
     ) -> TaskStep:
         if step_number < 1:
             raise ValueError("step_number must be >= 1")
@@ -201,11 +202,17 @@ class TaskService:
             step_number=step_number,
             correct_word=correct_word,
             context_hint=context_hint,
+            explanation=explanation,
         )
         session.add(step)
         await session.flush()
         return step
 
+    @staticmethod
+    async def delete(session: AsyncSession, task: Task) -> None:
+        """Удалить задание вместе с шагами (через ORM-каскад)."""
+        await session.delete(task)
+        await session.flush()
     @staticmethod
     async def delete(session: AsyncSession, task: Task) -> None:
         """Удалить задание вместе с шагами (через ORM-каскад)."""
