@@ -320,12 +320,17 @@ async def on_any_text(event: MessageCreated) -> None:
         correct = await SessionService.submit_step(
             session, session_obj, step, text
         )
+        
+        # ===== ВОТ ЗДЕСЬ БЛОК С ПОЯСНЕНИЕМ =====
         if correct:
             await event.message.answer(f"✅ Верно! +{XP_PER_CORRECT_STEP} XP")
         else:
-            await event.message.answer(
-                f"❌ Неверно. Правильный ответ: {step.correct_word}"
-            )
+            lines = [f"❌ Неверно. Правильный ответ: {step.correct_word}"]
+            if step.explanation:
+                lines.append("")
+                lines.append(f"📖 {step.explanation}")
+            await event.message.answer("\n".join(lines))
+        # ========================================
 
         if session_obj.current_step >= len(task.steps):
             await SessionService.complete(session, session_obj, task, user)

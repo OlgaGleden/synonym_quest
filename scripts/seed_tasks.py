@@ -61,6 +61,7 @@ async def _create_all(session) -> list[tuple[str, int]]:
                 step_number=step["step_number"],
                 correct_word=step["correct_word"],
                 context_hint=step.get("context_hint"),
+                explanation=s.get("explanation"),
             )
         created.append((task.title, task.task_id))
     return created
