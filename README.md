@@ -28,8 +28,9 @@
 - **maxapi 1.2.2** (клиент MAX)
 - **pydantic-settings** (конфиг)
 - **pytest** + `pytest-asyncio` (120+ тестов)
+- **Docker** (контейнеризация)
 
-## Быстрый старт
+## Быстрый старт (локальный запуск)
 
 ### 1. Клонировать и поставить зависимости
 
@@ -38,7 +39,6 @@ cd C:\max\synonym_quest
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 uv pip install -e .
-
 2. Запустить инфраструктуру (БД)
 powershell
 docker compose -f docker-compose.dev.yml up -d
@@ -49,7 +49,16 @@ docker compose -f docker-compose.dev.yml up -d
 
 powershell
 Copy-Item .env.example .env
-Обязательно укажите ваш BOT_TOKEN (получить у @MasterBot в MAX).
+Обязательно укажите ваш 
+BOT_TOKEN
+ (получить у @MasterBot в MAX).
+Для локального запуска в 
+DATABASE_URL
+ и 
+REDIS_URL
+ используется 
+localhost
+.
 
 4. Применить миграции и залить задания
 powershell
@@ -58,14 +67,37 @@ python scripts/seed_tasks.py
 5. Запустить бота
 powershell
 python -m synonym_quest.bot
+Запуск через Docker
+Проект полностью контейнеризирован. Для запуска бота в изолированной среде выполните:
+
+Убедитесь, что инфраструктура (БД sq_postgres) запущена.
+
+Соберите образ:
+
+powershell
+docker build -t synonym_quest_bot .
+Запустите контейнер (в .
+env
+ укажите имя хоста 
+sq_postgres
+ вместо 
+localhost
+):
+
+powershell
+docker run -d --name synonym_bot --env-file .env --network synonym_quest_default synonym_quest_bot
+Проверьте логи:
+
+powershell
+docker logs -f synonym_bot
 Сценарий использования
-Учитель открывает бота, отправляет /start → /teacher.
-Бот повышает роль и выдаёт 8-символьный код (например, IBP1FEF5).
+Учитель открывает бота, отправляет /start → /teacher. Бот повышает роль и выдаёт 8-символьный код (например, IBP1FEF5).
 
-Ученик открывает бота, отправляет /start → /student IBP1FEF5.
-Бот привязывает ученика к учителю.
+Ученик открывает бота, отправляет /start → /student IBP1FEF5. Бот привязывает ученика к учителю.
 
-Ученик выбирает механику (/word_tyr, /context_detective, /synonym_puzzle, /synonym_battle, /boss), проходит задание, получает XP и растёт в ранге.
+Ученик выбирает механику (/word_tyr, /context_detective, /syn
+onym_puzzle
+, /synonym_battle, /boss), проходит задание, получает XP и растёт в ранге.
 
 Учитель открывает /my_students, /class_stats, /weak_tasks и видит прогресс класса.
 
