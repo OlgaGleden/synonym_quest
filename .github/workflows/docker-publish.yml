@@ -15,6 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Добавляем шаг, который переводит имя владельца в нижний регистр
+      - name: Set lowercase repository owner
+        run: echo "OWNER_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -27,4 +31,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/synonym_quest_bot:latest
+          # Используем переменную OWNER_LC в теге
+          tags: ghcr.io/${{ env.OWNER_LC }}/synonym_quest_bot:latest
